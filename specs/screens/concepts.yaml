@@ -1,0 +1,78 @@
+version: "2.0"
+
+screen:
+  name: 시각적 개념 설명
+  route: /concepts
+  layout: sidebar-main
+  auth: false
+
+data_requirements:
+  - resource: concepts
+    needs: [id, name, category, description, visualization_type, visualization_data, example_sql, related_concepts]
+    note: "SQL 개념을 시각적 다이어그램으로 설명"
+
+  - resource: sql_execution
+    needs: [query, result_columns, result_rows, error]
+    note: "미니 SQL 실행기용 (화면 내 실습)"
+
+components:
+  - id: concept_list
+    type: list
+    position: sidebar
+    function: SQL 개념 목록 (카테고리별 그룹핑, 난이도 표시)
+    data_source:
+      resource: concepts
+      fields: [id, name, category]
+    events:
+      select: 우측 패널에 선택한 개념 표시
+
+  - id: concept_panel
+    type: detail
+    position: main
+    function: 선택한 개념의 시각화 + 설명 + 예제
+    data_source:
+      resource: concepts
+    children:
+      - id: svg_diagram
+        type: image
+        function: SVG 다이어그램 (벤 다이어그램, 데이터 흐름, 테이블 구조)
+
+      - id: concept_description
+        type: text
+        function: 개념 설명 텍스트
+
+      - id: code_example
+        type: text
+        function: SQL 예제 코드 (신택스 하이라이팅)
+
+      - id: mini_sql_executor
+        type: form
+        function: 화면 내 미니 SQL 실행기 (예제 SQL 미리 입력, 바로 실행 가능)
+        data_source:
+          resource: sql_execution
+        events:
+          run: 미니 실행기에서 SQL 실행
+          open_full: navigate(/playground?sql=...)
+
+connections:
+  navigates_to:
+    - playground  # "실습해보기" → SQL 실행기 (예제 SQL 전달)
+  shared_components:
+    - mini_sql_executor  # sql.js 인스턴스 공유
+
+tests:
+  - name: 초기 로드
+    when: 페이지 접속
+    then: [첫 번째 개념(SELECT) 자동 선택, 시각화 + 설명 표시]
+
+  - name: 개념 전환
+    when: INNER JOIN 클릭
+    then: [벤 다이어그램 표시, 설명 업데이트, 예제 SQL 변경]
+
+  - name: 미니 실행기 실습
+    when: 미니 실행기에서 "실행" 클릭
+    then: [예제 SQL 실행, 결과 테이블 표시]
+
+  - name: 전체 실행기로 이동
+    when: "SQL 실행기에서 실습" 버튼 클릭
+    then: [/playground?sql=... 으로 이동, 예제 SQL 자동 입력]

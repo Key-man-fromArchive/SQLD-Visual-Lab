@@ -1,0 +1,80 @@
+version: "2.0"
+
+screen:
+  name: SQLD 용어 사전
+  route: /glossary
+  layout: full-width
+  auth: false
+
+data_requirements:
+  - resource: terms
+    needs: [id, term, category, definition, syntax, example_sql, example_result, related_terms]
+    filters:
+      category: "?category"
+      search: "?q"
+    note: "SQLD 시험 용어 데이터 (DDL, DML, TCL, 정규화 등)"
+
+components:
+  - id: search_bar
+    type: input
+    position: top
+    function: 용어 실시간 검색 (퍼지 매칭)
+    events:
+      input: 검색어에 맞는 용어 필터링
+
+  - id: category_tabs
+    type: tabs
+    position: top
+    function: 카테고리별 필터 탭 (전체, DDL, DML, TCL, 정규화, 그 외)
+    events:
+      select: 선택 카테고리로 필터링
+
+  - id: term_grid
+    type: grid
+    position: main
+    function: 용어 카드 3열 그리드 (페이지네이션, 12개/페이지)
+    data_source:
+      resource: terms
+    children:
+      - id: term_card
+        type: card
+        function: 용어명 + 카테고리 + 정의 요약 + 예제/실습 버튼
+        events:
+          view_example: 모달로 상세 예제 표시
+          practice: navigate(/playground?sql=...)
+
+  - id: term_detail_modal
+    type: modal
+    position: overlay
+    function: 용어 상세 보기 (전체 정의 + SQL 구문 + 예제 + 결과 설명)
+    data_source:
+      resource: terms
+    events:
+      close: 모달 닫기
+      copy: 예제 SQL 클립보드 복사
+      practice: navigate(/playground?sql=...)
+
+connections:
+  navigates_to:
+    - playground  # "실습" → SQL 실행기 (예제 SQL 전달)
+
+tests:
+  - name: 초기 로드
+    when: 페이지 접속
+    then: [전체 용어 표시, 카테고리 탭 표시, 검색창 비어있음]
+
+  - name: 검색 필터링
+    when: "join" 검색
+    then: [JOIN 관련 용어만 필터링, 결과 수 표시]
+
+  - name: 카테고리 필터
+    when: DDL 탭 클릭
+    then: [DDL 용어만 표시 (CREATE, ALTER, DROP 등)]
+
+  - name: 용어 상세 보기
+    when: SELECT 카드에서 "예제 보기" 클릭
+    then: [모달 열림, SQL 구문 + 예제 + 결과 설명 표시]
+
+  - name: 실습 연계
+    when: 용어 카드에서 "실습" 클릭
+    then: [/playground?sql=... 으로 이동]

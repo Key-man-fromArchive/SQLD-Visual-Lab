@@ -1,0 +1,41 @@
+version: "2.0"
+
+shared_components:
+  - id: navigation_header
+    type: navigation
+    used_in: [dashboard, playground, concepts, glossary]
+    function: 상단 내비게이션 바 (로고 + 4개 메뉴 + 현재 페이지 강조)
+    props:
+      logo: "SQLD Visual Lab"
+      items: [홈, SQL 실행기, 개념 설명, 용어 사전]
+      active_indicator: true
+
+  - id: footer
+    type: section
+    used_in: [dashboard, playground, concepts, glossary]
+    function: 하단 정보 (저작권, 소개, 피드백, GitHub 링크)
+
+  - id: sql_executor
+    type: form
+    used_in: [playground, concepts]
+    function: SQL 실행 엔진 (sql.js WASM 래퍼)
+    note: "playground에서는 전체 크기, concepts에서는 미니 크기로 사용"
+    props:
+      variant: full | mini
+    data_source:
+      resource: sql_execution
+
+  - id: sql_code_block
+    type: text
+    used_in: [concepts, glossary]
+    function: SQL 코드 신택스 하이라이팅 블록
+    props:
+      language: sql
+      copyable: true
+
+  - id: practice_button
+    type: button
+    used_in: [concepts, glossary]
+    function: "실습해보기" 버튼 → SQL 실행기로 이동 (예제 SQL 전달)
+    events:
+      click: navigate(/playground?sql=...)

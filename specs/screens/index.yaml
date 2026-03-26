@@ -1,0 +1,28 @@
+version: "2.0"
+
+project: SQLD Visual Lab
+
+screens:
+  - id: dashboard
+    name: 메인 대시보드
+    route: /
+    file: dashboard.yaml
+
+  - id: playground
+    name: SQL 실행기
+    route: /playground
+    file: playground.yaml
+
+  - id: concepts
+    name: 시각적 개념 설명
+    route: /concepts
+    file: concepts.yaml
+
+  - id: glossary
+    name: SQLD 용어 사전
+    route: /glossary
+    file: glossary.yaml
+
+shared_layout:
+  header: 상단 내비게이션 (로고 + 4개 메뉴)
+  footer: 하단 정보 (저작권 + 링크)

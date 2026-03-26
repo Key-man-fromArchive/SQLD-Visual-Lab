@@ -1,0 +1,58 @@
+version: "2.0"
+
+screen:
+  name: 메인 대시보드
+  route: /
+  layout: full-width
+  auth: false
+
+data_requirements: []
+  # 정적 페이지 - 외부 데이터 불필요
+
+components:
+  - id: hero_section
+    type: section
+    position: top
+    function: 환영 메시지 및 서비스 소개 표시
+
+  - id: feature_cards
+    type: grid
+    position: main
+    function: 3개 기능 카드 (SQL 실행기, 개념 설명, 용어 사전) 표시
+    children:
+      - id: card_playground
+        type: card
+        function: SQL 실행기 카드
+        events:
+          click: navigate(/playground)
+
+      - id: card_concepts
+        type: card
+        function: 시각적 개념 설명 카드
+        events:
+          click: navigate(/concepts)
+
+      - id: card_glossary
+        type: card
+        function: SQLD 용어 사전 카드
+        events:
+          click: navigate(/glossary)
+
+connections:
+  navigates_to:
+    - playground
+    - concepts
+    - glossary
+
+tests:
+  - name: 초기 로드
+    when: 페이지 접속
+    then: [환영 메시지 표시, 3개 기능 카드 표시]
+
+  - name: 카드 클릭 네비게이션
+    when: SQL 실행기 카드 클릭
+    then: [/playground 페이지로 이동]
+
+  - name: 재방문 사용자
+    when: LocalStorage에 방문 기록 있음
+    then: [마지막 방문 페이지 바로가기 표시]

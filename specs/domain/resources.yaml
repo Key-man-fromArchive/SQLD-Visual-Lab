@@ -1,0 +1,103 @@
+version: "2.0"
+
+resources:
+  # SQL 실행 관련
+  sql_execution:
+    description: "브라우저에서 sql.js(WASM)를 통한 SQL 실행"
+    fields:
+      - name: query
+        type: string
+        description: "사용자가 입력한 SQL 쿼리"
+      - name: result_columns
+        type: string[]
+        description: "실행 결과의 컬럼명 배열"
+      - name: result_rows
+        type: any[][]
+        description: "실행 결과의 행 데이터"
+      - name: row_count
+        type: number
+        description: "결과 행 수"
+      - name: execution_time
+        type: number
+        description: "실행 시간(ms)"
+      - name: error
+        type: string | null
+        description: "SQL 에러 메시지"
+
+  # 샘플 데이터셋
+  sample_datasets:
+    description: "SQLD 학습용 미리 준비된 테이블 데이터셋"
+    fields:
+      - name: id
+        type: string
+        description: "데이터셋 고유 ID"
+      - name: name
+        type: string
+        description: "데이터셋 이름 (예: 사원관리)"
+      - name: description
+        type: string
+        description: "데이터셋 설명"
+      - name: tables
+        type: TableSchema[]
+        description: "포함된 테이블 목록"
+      - name: init_sql
+        type: string
+        description: "초기화 SQL (CREATE + INSERT)"
+
+  # SQL 개념
+  concepts:
+    description: "SQL 개념 시각화 데이터"
+    fields:
+      - name: id
+        type: string
+        description: "개념 고유 ID"
+      - name: name
+        type: string
+        description: "개념명 (예: INNER JOIN)"
+      - name: category
+        type: string
+        description: "카테고리 (JOIN, 집계, 서브쿼리 등)"
+      - name: description
+        type: string
+        description: "개념 설명 텍스트"
+      - name: visualization_type
+        type: string
+        description: "시각화 타입 (venn, flow, table-structure)"
+      - name: visualization_data
+        type: object
+        description: "시각화에 필요한 데이터"
+      - name: example_sql
+        type: string
+        description: "예제 SQL"
+      - name: related_concepts
+        type: string[]
+        description: "관련 개념 ID 목록"
+
+  # SQLD 용어
+  terms:
+    description: "SQLD 시험 용어 사전 데이터"
+    fields:
+      - name: id
+        type: string
+        description: "용어 고유 ID"
+      - name: term
+        type: string
+        description: "용어명"
+      - name: category
+        type: string
+        description: "카테고리 (DDL, DML, TCL, DCL, 정규화, 모델링 등)"
+      - name: definition
+        type: string
+        description: "용어 정의 (쉬운 설명)"
+      - name: syntax
+        type: string | null
+        description: "SQL 구문 (해당되는 경우)"
+      - name: example_sql
+        type: string | null
+        description: "예제 SQL"
+      - name: example_result
+        type: string | null
+        description: "예제 실행 결과 설명"
+      - name: related_terms
+        type: string[]
+        description: "관련 용어 ID 목록"

@@ -1,0 +1,74 @@
+version: "2.0"
+
+types:
+  SQLResult:
+    description: "SQL 실행 결과"
+    fields:
+      columns: string[]
+      rows: any[][]
+      rowCount: number
+      executionTime: number
+      error: string | null
+
+  SampleDataset:
+    description: "샘플 데이터셋 정의"
+    fields:
+      id: string
+      name: string
+      description: string
+      tables: TableSchema[]
+      initSQL: string
+
+  TableSchema:
+    description: "테이블 스키마 정보"
+    fields:
+      name: string
+      columns: ColumnDef[]
+      sampleData: string  # INSERT SQL
+
+  ColumnDef:
+    description: "컬럼 정의"
+    fields:
+      name: string
+      type: string
+      nullable: boolean
+      primaryKey: boolean
+
+  Concept:
+    description: "SQL 개념 데이터"
+    fields:
+      id: string
+      name: string
+      category: string
+      description: string
+      visualizationType: venn | flow | table-structure
+      visualizationData: object
+      exampleSQL: string
+      relatedConcepts: string[]
+
+  Term:
+    description: "SQLD 용어 데이터"
+    fields:
+      id: string
+      term: string
+      category: DDL | DML | TCL | DCL | normalization | other
+      definition: string
+      syntax: string | null
+      exampleSQL: string | null
+      exampleResult: string | null
+      relatedTerms: string[]
+
+  NavigationItem:
+    description: "내비게이션 메뉴 항목"
+    fields:
+      label: string
+      href: string
+      icon: string
+
+  QueryHistoryItem:
+    description: "쿼리 실행 히스토리"
+    fields:
+      sql: string
+      timestamp: number
+      rowCount: number
+      success: boolean

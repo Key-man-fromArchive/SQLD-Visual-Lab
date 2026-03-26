@@ -1,0 +1,93 @@
+version: "2.0"
+
+screen:
+  name: SQL 실행기
+  route: /playground
+  layout: full-width
+  auth: false
+
+data_requirements:
+  - resource: sql_execution
+    needs: [query, result_columns, result_rows, row_count, execution_time, error]
+    note: "sql.js WASM으로 브라우저 내 실행"
+
+  - resource: sample_datasets
+    needs: [id, name, description, tables, init_sql]
+    note: "SQLD 빈출 테이블 (사원, 부서, 주문 등)"
+
+components:
+  - id: sample_data_selector
+    type: select
+    position: top
+    function: 샘플 데이터셋 선택 (EMPLOYEES, ORDERS, CUSTOM)
+    data_source:
+      resource: sample_datasets
+    events:
+      change: 선택한 데이터셋으로 DB 초기화
+
+  - id: sql_editor
+    type: form
+    position: main-top
+    function: SQL 쿼리 입력 에디터 (Monaco Editor, 신택스 하이라이팅)
+    events:
+      ctrl_enter: SQL 실행
+      change: 쿼리 텍스트 업데이트
+
+  - id: sql_controls
+    type: button
+    position: main-top
+    function: 실행/저장/지우기 버튼 그룹
+    events:
+      run: SQL 실행 → result_table 업데이트
+      clear: 에디터 + 결과 초기화
+
+  - id: query_history
+    type: list
+    position: main-top
+    function: 최근 실행 쿼리 10개 목록 (펼치기/접기)
+    events:
+      select: 선택한 쿼리를 에디터에 로드
+
+  - id: result_table
+    type: table
+    position: main-bottom
+    function: SQL 실행 결과 테이블 (정렬, 페이지네이션)
+    data_source:
+      resource: sql_execution
+    events:
+      sort: 컬럼 정렬
+      export_csv: CSV 다운로드
+
+  - id: error_display
+    type: alert
+    position: main-bottom
+    function: SQL 에러 메시지 표시 + 도움말 힌트
+    data_source:
+      resource: sql_execution
+      field: error
+
+connections:
+  receives_from:
+    - concepts  # 개념 설명의 "실습해보기" → sql 파라미터
+    - glossary  # 용어 사전의 "실습" → sql 파라미터
+
+tests:
+  - name: SQL 실행 성공
+    when: "SELECT * FROM employees" 실행
+    then: [결과 테이블에 사원 데이터 표시, 행 수 표시]
+
+  - name: SQL 구문 에러
+    when: "SELET * FORM emp" 실행
+    then: [에러 메시지 표시, 도움말 힌트 표시]
+
+  - name: 샘플 데이터 전환
+    when: ORDERS 데이터셋 선택
+    then: [주문 테이블 초기화, 에디터 샘플 쿼리 표시]
+
+  - name: 외부 연계 진입
+    when: /playground?sql=SELECT... 파라미터로 접근
+    then: [에디터에 SQL 자동 입력]
+
+  - name: 쿼리 히스토리
+    when: 쿼리 3회 실행 후 히스토리 클릭
+    then: [선택한 쿼리가 에디터에 로드]
