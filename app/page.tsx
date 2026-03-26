@@ -1,65 +1,51 @@
-import Image from "next/image";
+// @TASK P5-S1-T1 - 메인 홈 페이지 (대시보드)
+// @SPEC docs/planning/sqld-visual-lab-spec.md
 
-export default function Home() {
+import HeroSection from '@/components/features/dashboard/HeroSection'
+import FeatureCard from '@/components/features/dashboard/FeatureCard'
+import { ROUTES } from '@/lib/constants'
+
+const features = [
+  {
+    icon: '⚙️',
+    title: 'SQL 실행기',
+    description: 'SQL을 직접 작성하고 브라우저에서 바로 실행해보세요. SQLD 교재 예제를 따라하며 학습할 수 있습니다.',
+    href: ROUTES.PLAYGROUND,
+    color: 'bg-blue-50',
+    borderColor: 'border-blue-200',
+  },
+  {
+    icon: '📊',
+    title: '시각적 개념 설명',
+    description: 'JOIN, GROUP BY 등 핵심 SQL 개념을 그림과 다이어그램으로 직관적으로 이해합니다.',
+    href: ROUTES.CONCEPTS,
+    color: 'bg-green-50',
+    borderColor: 'border-green-200',
+  },
+  {
+    icon: '📚',
+    title: 'SQLD 용어 사전',
+    description: 'SQLD 시험에 자주 나오는 용어를 검색하고, 예제와 함께 쉽게 학습합니다.',
+    href: ROUTES.GLOSSARY,
+    color: 'bg-yellow-50',
+    borderColor: 'border-yellow-200',
+  },
+]
+
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div>
+      <HeroSection />
+      <section className="max-w-6xl mx-auto px-4 py-16">
+        <h2 className="text-2xl font-bold text-gray-900 text-center mb-12">
+          3가지 학습 도구로 SQLD를 정복하세요
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {features.map((feature) => (
+            <FeatureCard key={feature.href} {...feature} />
+          ))}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </section>
     </div>
-  );
+  )
 }
