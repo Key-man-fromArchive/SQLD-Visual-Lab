@@ -52,3 +52,26 @@ export interface QueryHistoryItem {
   rowCount: number
   success: boolean
 }
+
+export interface SQLExample {
+  id: string
+  title: string
+  description: string
+  category: 'SELECT 기초' | 'WHERE 조건' | 'JOIN' | 'GROUP BY' | '서브쿼리' | '윈도우 함수' | 'DML' | '집합 연산'
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  dataset: 'employees' | 'orders' | 'school'
+  sql: string
+  expectedDescription: string
+}
+
+export interface SQLExercise {
+  id: string
+  title: string
+  description: string
+  category: 'SELECT 기초' | 'WHERE 조건' | 'JOIN' | 'GROUP BY' | '서브쿼리' | '윈도우 함수' | 'DML' | '집합 연산'
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  dataset: 'employees' | 'orders' | 'school'
+  hint: string
+  answer: string
+  expectedDescription: string
+}
