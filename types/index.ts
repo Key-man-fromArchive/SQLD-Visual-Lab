@@ -1,9 +1,11 @@
 // @TASK P0-T0.3 - 공통 타입 정의
 // @SPEC docs/planning/sqld-visual-lab-spec.md
 
+export type SqlCellValue = string | number | Uint8Array | null
+
 export interface SQLResult {
   columns: string[]
-  rows: any[][]
+  rows: SqlCellValue[][]
   rowCount: number
   executionTime: number
   error: string | null

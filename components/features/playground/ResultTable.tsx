@@ -3,19 +3,23 @@
 // @TASK P2-S1-T2 - 쿼리 결과 테이블 (페이지네이션 + CSV 내보내기)
 // @SPEC docs/planning/sqld-visual-lab-spec.md
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { exportToCSV } from '@/lib/sql-service'
+import type { SqlCellValue } from '@/types'
 
 const ROWS_PER_PAGE = 20
 
 interface ResultTableProps {
   columns: string[]
-  rows: any[][]
+  rows: SqlCellValue[][]
   executionTime: number
 }
 
 export default function ResultTable({ columns, rows, executionTime }: ResultTableProps) {
   const [page, setPage] = useState(1)
+
+  // Issue 5: 결과가 바뀌면 첫 페이지로 초기화
+  useEffect(() => { setPage(1) }, [columns, rows])
 
   const totalPages = Math.max(1, Math.ceil(rows.length / ROWS_PER_PAGE))
   const startIndex = (page - 1) * ROWS_PER_PAGE

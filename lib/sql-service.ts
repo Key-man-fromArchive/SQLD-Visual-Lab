@@ -5,27 +5,41 @@
 
 import { initDatabase, executeQuery as rawExecuteQuery, resetDatabase } from './sql-engine'
 import { MAX_QUERY_HISTORY } from './constants'
-import type { SQLResult, QueryHistoryItem } from '@/types'
+import type { SQLResult, QueryHistoryItem, SqlCellValue } from '@/types'
 
 let initialized = false
+let initPromise: Promise<void> | null = null
 
 export async function initSQLService(initSQL?: string): Promise<void> {
+  if (initPromise) await initPromise
   if (!initialized) {
     try {
-      await initDatabase(initSQL)
+      initPromise = initDatabase(initSQL)
+      await initPromise
       initialized = true
     } catch (err) {
       initialized = false
       throw err
+    } finally {
+      initPromise = null
     }
   }
 }
 
 export async function switchDataset(initSQL: string): Promise<void> {
+  if (initPromise) await initPromise
   resetDatabase()
   initialized = false
-  await initDatabase(initSQL)
-  initialized = true
+  try {
+    initPromise = initDatabase(initSQL)
+    await initPromise
+    initialized = true
+  } catch (err) {
+    initialized = false
+    throw err
+  } finally {
+    initPromise = null
+  }
 }
 
 export function runQuery(sql: string): SQLResult {
@@ -45,7 +59,13 @@ const HISTORY_KEY = 'sqld-query-history'
 export function getQueryHistory(): QueryHistoryItem[] {
   if (typeof window === 'undefined') return []
   const stored = localStorage.getItem(HISTORY_KEY)
-  return stored ? JSON.parse(stored) : []
+  if (!stored) return []
+  try {
+    return JSON.parse(stored)
+  } catch {
+    localStorage.removeItem(HISTORY_KEY)
+    return []
+  }
 }
 
 export function addToHistory(item: QueryHistoryItem): void {
@@ -62,7 +82,7 @@ export function clearHistory(): void {
 // CSV 내보내기
 export function exportToCSV(
   columns: string[],
-  rows: any[][],
+  rows: SqlCellValue[][],
   filename: string = 'query-results.csv'
 ): void {
   const header = columns.join(',')
@@ -71,7 +91,7 @@ export function exportToCSV(
       row
         .map((cell) => {
           const str = String(cell ?? '')
-          return str.includes(',') || str.includes('"')
+          return str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')
             ? `"${str.replace(/"/g, '""')}"`
             : str
         })

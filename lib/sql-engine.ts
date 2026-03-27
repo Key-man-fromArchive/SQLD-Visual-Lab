@@ -3,6 +3,7 @@
 
 // sql.js는 동적 import로 로드 (SSR 방지, WASM 호환)
 type Database = import('sql.js').Database
+import type { SqlCellValue } from '@/types'
 
 let db: Database | null = null
 
@@ -94,7 +95,7 @@ export async function initDatabase(initSQL?: string): Promise<void> {
  */
 export function executeQuery(sql: string): {
   columns: string[]
-  rows: any[][]
+  rows: SqlCellValue[][]
   rowCount: number
   executionTime: number
   error: string | null

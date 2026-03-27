@@ -4,8 +4,8 @@
 // @SPEC docs/planning/sqld-visual-lab-spec.md
 
 import { useState, useEffect, useRef } from 'react'
-import { initDatabase, executeQuery } from '@/lib/sql-engine'
 import { employeesDataset } from '@/data/datasets/employees'
+import type { SqlCellValue } from '@/types'
 
 interface MiniSQLExecutorProps {
   initialSQL: string
@@ -13,32 +13,69 @@ interface MiniSQLExecutorProps {
 
 interface QueryResult {
   columns: string[]
-  rows: (string | number | null)[][]
+  rows: SqlCellValue[][]
   rowCount: number
   executionTime: number
   error: string | null
 }
 
-// 개념 페이지 전용 DB 인스턴스를 위해 별도 초기화 플래그 사용
-let conceptsDbReady = false
+// Issue 2: playground 싱글톤과 격리된 별도 DB 인스턴스
+let miniDb: any = null
+let miniDbReady = false
+let miniDbInitPromise: Promise<void> | null = null
+
+async function initMiniDb(initSQL: string): Promise<void> {
+  const initSqlJs = (await import('sql.js')).default
+  const SQL = await initSqlJs({
+    locateFile: () => 'https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/sql-wasm.wasm',
+  })
+  miniDb = new SQL.Database()
+  if (initSQL) miniDb.run(initSQL)
+  miniDbReady = true
+}
+
+function miniExecuteQuery(sql: string): QueryResult {
+  if (!miniDb) {
+    return { columns: [], rows: [], rowCount: 0, executionTime: 0, error: 'DB not ready' }
+  }
+  const startTime = performance.now()
+  try {
+    const results = miniDb.exec(sql)
+    const executionTime = performance.now() - startTime
+    if (results.length === 0) return { columns: [], rows: [], rowCount: 0, executionTime, error: null }
+    const last = results[results.length - 1]
+    return { columns: last.columns, rows: last.values as SqlCellValue[][], rowCount: last.values.length, executionTime, error: null }
+  } catch (err: any) {
+    return { columns: [], rows: [], rowCount: 0, executionTime: performance.now() - startTime, error: err.message }
+  }
+}
 
 export default function MiniSQLExecutor({ initialSQL }: MiniSQLExecutorProps) {
   const [sql, setSql] = useState(initialSQL)
   const [result, setResult] = useState<QueryResult | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [dbReady, setDbReady] = useState(false)
+  const [dbError, setDbError] = useState<string | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  // DB 초기화 (employees 데이터셋)
+  // DB 초기화 (employees 데이터셋) - Issue 2: 별도 인스턴스, Issue 3: .catch() 추가
   useEffect(() => {
-    if (conceptsDbReady) {
+    if (miniDbReady) {
       setDbReady(true)
       return
     }
-    initDatabase(employeesDataset.initSQL).then(() => {
-      conceptsDbReady = true
-      setDbReady(true)
-    })
+    if (!miniDbInitPromise) {
+      miniDbInitPromise = initMiniDb(employeesDataset.initSQL)
+    }
+    miniDbInitPromise
+      .then(() => {
+        setDbReady(true)
+      })
+      .catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : String(err)
+        setDbError(`DB 초기화 실패: ${msg}`)
+        miniDbInitPromise = null
+      })
   }, [])
 
   // initialSQL 변경 시 SQL 동기화
@@ -52,7 +89,7 @@ export default function MiniSQLExecutor({ initialSQL }: MiniSQLExecutorProps) {
     setIsLoading(true)
     // 비동기 느낌 (UI 반응성)
     setTimeout(() => {
-      const res = executeQuery(sql)
+      const res = miniExecuteQuery(sql)
       setResult(res)
       setIsLoading(false)
     }, 50)
@@ -68,11 +105,17 @@ export default function MiniSQLExecutor({ initialSQL }: MiniSQLExecutorProps) {
 
   return (
     <div className="border border-gray-200 rounded-xl overflow-hidden">
+      {/* DB 초기화 에러 표시 (Issue 3) */}
+      {dbError && (
+        <div className="px-4 py-2 bg-red-50 text-red-600 text-xs border-b border-red-200">
+          {dbError}
+        </div>
+      )}
       {/* 헤더 */}
       <div className="bg-gray-50 px-4 py-2 flex items-center justify-between border-b border-gray-200">
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-gray-600">SQL 직접 실행해보기</span>
-          {!dbReady && (
+          {!dbReady && !dbError && (
             <span className="text-xs text-gray-400 animate-pulse">DB 준비 중...</span>
           )}
         </div>
