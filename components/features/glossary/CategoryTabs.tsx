@@ -10,6 +10,10 @@ const CATEGORY_LABELS: Record<Category, string> = {
   DDL: 'DDL',
   DML: 'DML',
   TCL: 'TCL',
+  DCL: 'DCL',
+  FUNCTION: '함수',
+  OPERATOR: '연산자',
+  DATATYPE: '데이터타입',
   NORMALIZATION: '정규화',
   OTHER: '기타',
 }

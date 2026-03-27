@@ -10,6 +10,10 @@ const CATEGORY_BADGE: Record<Term['category'], string> = {
   DDL: 'bg-blue-100 text-blue-700',
   DML: 'bg-green-100 text-green-700',
   TCL: 'bg-purple-100 text-purple-700',
+  DCL: 'bg-red-100 text-red-700',
+  FUNCTION: 'bg-indigo-100 text-indigo-700',
+  OPERATOR: 'bg-cyan-100 text-cyan-700',
+  DATATYPE: 'bg-amber-100 text-amber-700',
   NORMALIZATION: 'bg-orange-100 text-orange-700',
   OTHER: 'bg-gray-100 text-gray-600',
 }
@@ -18,6 +22,10 @@ const CATEGORY_LABELS: Record<Term['category'], string> = {
   DDL: 'DDL',
   DML: 'DML',
   TCL: 'TCL',
+  DCL: 'DCL',
+  FUNCTION: '함수',
+  OPERATOR: '연산자',
+  DATATYPE: '데이터타입',
   NORMALIZATION: '정규화',
   OTHER: '기타',
 }

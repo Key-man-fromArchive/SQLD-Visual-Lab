@@ -1,0 +1,77 @@
+// @TASK P4-R1-T2 - SQL 연산자 용어 데이터
+// @SPEC docs/planning/sqld-visual-lab-spec.md
+
+import { Term } from '@/types'
+
+export const operatorTerms: Term[] = [
+  {
+    id: 'between',
+    name: 'BETWEEN',
+    category: 'OPERATOR',
+    definition: '값이 지정된 범위 내에 있는지를 확인합니다. 최소값과 최대값을 포함하는 범위 조건을 간결하게 표현할 수 있습니다.',
+    syntax: '컬럼 BETWEEN 최소값 AND 최대값\n컬럼 NOT BETWEEN 최소값 AND 최대값',
+    exampleSQL: "SELECT * FROM employees WHERE salary BETWEEN 2000 AND 5000;\nSELECT * FROM employees WHERE hire_date BETWEEN '2020-01-01' AND '2023-12-31';",
+    exampleResult: '급여가 2000부터 5000 사이인 직원과 2020년부터 2023년 사이에 채용된 직원이 조회됩니다.',
+    relatedTerms: ['in', 'like', 'is-null'],
+  },
+  {
+    id: 'in',
+    name: 'IN / NOT IN',
+    category: 'OPERATOR',
+    definition: '값이 목록에 포함되는지를 확인합니다. OR 조건을 여러 번 쓰는 대신 간결하게 값 목록을 지정할 수 있습니다.',
+    syntax: '컬럼 IN (값1, 값2, 값3, ...)\n컬럼 NOT IN (값1, 값2, 값3, ...)',
+    exampleSQL: "SELECT * FROM employees WHERE department_id IN (10, 20, 30);\nSELECT * FROM employees WHERE job_id NOT IN ('CLERK', 'ASSISTANT');",
+    exampleResult: '부서 ID가 10, 20, 30인 직원들과 CLERK나 ASSISTANT가 아닌 직원들이 조회됩니다.',
+    relatedTerms: ['between', 'like', 'exists'],
+  },
+  {
+    id: 'like',
+    name: 'LIKE',
+    category: 'OPERATOR',
+    definition: '문자열 패턴 매칭을 수행합니다. % (0개 이상의 문자), _ (정확히 1개의 문자) 와일드카드를 사용하여 부분 검색이 가능합니다.',
+    syntax: "컬럼 LIKE '패턴'\n% : 0개 이상의 임의 문자\n_ : 정확히 1개의 임의 문자",
+    exampleSQL: "SELECT * FROM employees WHERE last_name LIKE 'J%';\nSELECT * FROM employees WHERE last_name LIKE '%ING';\nSELECT * FROM employees WHERE last_name LIKE 'A_C%';",
+    exampleResult: "'J'로 시작하는 성, 'ING'로 끝나는 성, 두 번째 글자가 'C'인 성을 가진 직원들이 조회됩니다.",
+    relatedTerms: ['in', 'between', 'is-null'],
+  },
+  {
+    id: 'is-null',
+    name: 'IS NULL / IS NOT NULL',
+    category: 'OPERATOR',
+    definition: '값이 NULL인지를 확인합니다. NULL은 미정의/알 수 없는 값을 의미하므로 =로 비교할 수 없고 IS NULL을 사용해야 합니다.',
+    syntax: '컬럼 IS NULL\n컬럼 IS NOT NULL',
+    exampleSQL: 'SELECT * FROM employees WHERE commission_pct IS NULL;\nSELECT * FROM employees WHERE manager_id IS NOT NULL;',
+    exampleResult: 'commission_pct가 비어있는 직원과 상사가 있는 직원들이 조회됩니다.',
+    relatedTerms: ['between', 'in', 'like'],
+  },
+  {
+    id: 'exists',
+    name: 'EXISTS / NOT EXISTS',
+    category: 'OPERATOR',
+    definition: '서브쿼리가 데이터를 반환하는지를 확인합니다. 서브쿼리 결과가 1행 이상이면 TRUE, 없으면 FALSE입니다.',
+    syntax: '[NOT] EXISTS (서브쿼리)',
+    exampleSQL: 'SELECT * FROM employees e WHERE EXISTS (SELECT 1 FROM employees m WHERE e.manager_id = m.employee_id);\nSELECT * FROM departments WHERE NOT EXISTS (SELECT 1 FROM employees WHERE departments.department_id = employees.department_id);',
+    exampleResult: '상사 역할을 하는 직원들과 직원이 없는 부서들이 조회됩니다.',
+    relatedTerms: ['in', 'any-all'],
+  },
+  {
+    id: 'any-all',
+    name: 'ANY / ALL',
+    category: 'OPERATOR',
+    definition: '값과 서브쿼리 결과를 비교합니다. ANY는 조건이 하나 이상 맞으면 TRUE, ALL은 모든 조건이 맞아야 TRUE입니다.',
+    syntax: '컬럼 연산자 ANY (서브쿼리)\n컬럼 연산자 ALL (서브쿼리)\n가능한 연산자: =, <>, <, >, <=, >=',
+    exampleSQL: 'SELECT * FROM employees WHERE salary > ANY (SELECT salary FROM employees WHERE department_id = 20);\nSELECT * FROM employees WHERE salary >= ALL (SELECT salary FROM employees WHERE job_id = \'CLERK\');',
+    exampleResult: '부서 20의 누군가보다 급여가 높은 직원과 모든 CLERK보다 급여가 높거나 같은 직원이 조회됩니다.',
+    relatedTerms: ['exists', 'in', 'between'],
+  },
+  {
+    id: 'case-when',
+    name: 'CASE WHEN',
+    category: 'OPERATOR',
+    definition: '조건 분기 로직을 구현합니다. 복수의 조건을 평가하고 첫 번째로 맞는 조건의 결과를 반환합니다.',
+    syntax: 'CASE\n  WHEN 조건1 THEN 결과1\n  WHEN 조건2 THEN 결과2\n  ...\n  ELSE 기본결과\nEND\n\nCASE 표현식\n  WHEN 값1 THEN 결과1\n  WHEN 값2 THEN 결과2\n  ELSE 기본결과\nEND',
+    exampleSQL: "SELECT employee_id, salary,\n  CASE\n    WHEN salary < 3000 THEN 'Low'\n    WHEN salary < 6000 THEN 'Medium'\n    ELSE 'High'\n  END AS salary_level\nFROM employees;\n\nSELECT employee_id,\n  CASE job_id\n    WHEN 'CLERK' THEN 'Staff'\n    WHEN 'MANAGER' THEN 'Manager'\n    ELSE 'Other'\n  END AS job_category\nFROM employees;",
+    exampleResult: '급여에 따라 Low/Medium/High로 분류되고, 직급에 따라 카테고리가 분류됩니다.',
+    relatedTerms: ['decode', 'nullif', 'coalesce'],
+  },
+]

@@ -22,7 +22,7 @@ export interface Concept {
   id: string
   name: string
   difficulty: 'beginner' | 'intermediate' | 'advanced'
-  category: 'SELECT' | 'JOIN' | 'AGGREGATE' | 'SUBQUERY' | 'NORMALIZATION'
+  category: 'SELECT' | 'JOIN' | 'AGGREGATE' | 'SUBQUERY' | 'NORMALIZATION' | 'WINDOW' | 'SET' | 'ADVANCED' | 'DML'
   shortDescription: string
   fullDescription: string
   visualizationType: 'venn' | 'flow' | 'table-structure'
@@ -36,7 +36,7 @@ export interface Concept {
 export interface Term {
   id: string
   name: string
-  category: 'DDL' | 'DML' | 'TCL' | 'NORMALIZATION' | 'OTHER'
+  category: 'DDL' | 'DML' | 'TCL' | 'DCL' | 'NORMALIZATION' | 'FUNCTION' | 'DATATYPE' | 'OPERATOR' | 'OTHER'
   definition: string
   syntax: string | null
   exampleSQL: string | null
