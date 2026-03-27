@@ -24,6 +24,7 @@ function PlaygroundContent() {
     selectedDataset,
     queryHistory,
     dbReady,
+    initError,
     executeQuery,
     handleSelectDataset,
     handleClear,
@@ -41,8 +42,22 @@ function PlaygroundContent() {
       </div>
 
       <div className="flex flex-col gap-5">
+        {/* DB 초기화 에러 */}
+        {initError && (
+          <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+            <p className="font-medium">데이터베이스 초기화 실패</p>
+            <p className="mt-1 text-xs">{initError}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-2 px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+            >
+              새로고침
+            </button>
+          </div>
+        )}
+
         {/* DB 초기화 중 안내 */}
-        {!dbReady && (
+        {!dbReady && !initError && (
           <div className="flex items-center gap-3 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
             <LoadingSpinner />
             데이터베이스를 초기화하는 중입니다...

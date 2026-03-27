@@ -1,7 +1,8 @@
 // @TASK P1-R1-T1 - sql.js WASM 기반 SQL 실행 엔진
 // @SPEC docs/planning/sqld-visual-lab-spec.md
 
-import initSqlJs, { Database } from 'sql.js'
+// sql.js는 동적 import로 로드 (SSR 방지, WASM 호환)
+type Database = import('sql.js').Database
 
 let db: Database | null = null
 
@@ -51,35 +52,38 @@ function translateErrorMessage(message: string): string {
 }
 
 /**
- * WASM 파일 경로를 환경에 따라 결정한다.
- * - 브라우저: /sql-wasm.wasm (public 디렉토리에서 서빙)
- * - Node.js (테스트): node_modules 내부 경로
- */
-function getLocateFile(): (file: string) => string {
-  if (typeof window !== 'undefined') {
-    // 브라우저 환경
-    return (file: string) => `/${file}`
-  }
-  // Node.js 환경 (테스트)
-  return (file: string) => {
-    const path = require('path')
-    return path.join(__dirname, '..', 'node_modules', 'sql.js', 'dist', file)
-  }
-}
-
-/**
  * sql.js 데이터베이스를 초기화한다.
+ * 브라우저에서는 /sql-wasm.wasm을 로드하고,
+ * Node.js(테스트)에서는 node_modules 경로를 사용한다.
  * @param initSQL 초기 실행할 SQL (CREATE TABLE, INSERT 등)
  */
 export async function initDatabase(initSQL?: string): Promise<void> {
-  const SQL = await initSqlJs({
-    locateFile: getLocateFile(),
-  })
+  try {
+    // 동적 import로 sql.js 로드 (SSR 방지)
+    const initSqlJs = (await import('sql.js')).default
 
-  db = new SQL.Database()
+    const isNode = typeof window === 'undefined'
+    let locateFile: (file: string) => string
 
-  if (initSQL) {
-    db.run(initSQL)
+    if (isNode) {
+      // Node.js 환경 (테스트)
+      const path = require('path')
+      locateFile = (file: string) =>
+        path.join(__dirname, '..', 'node_modules', 'sql.js', 'dist', file)
+    } else {
+      // 브라우저 환경
+      locateFile = (file: string) => `/${file}`
+    }
+
+    const SQL = await initSqlJs({ locateFile })
+    db = new SQL.Database()
+
+    if (initSQL) {
+      db.run(initSQL)
+    }
+  } catch (err) {
+    console.error('sql.js 초기화 실패:', err)
+    throw err
   }
 }
 

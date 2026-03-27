@@ -11,8 +11,13 @@ let initialized = false
 
 export async function initSQLService(initSQL?: string): Promise<void> {
   if (!initialized) {
-    await initDatabase(initSQL)
-    initialized = true
+    try {
+      await initDatabase(initSQL)
+      initialized = true
+    } catch (err) {
+      initialized = false
+      throw err
+    }
   }
 }
 

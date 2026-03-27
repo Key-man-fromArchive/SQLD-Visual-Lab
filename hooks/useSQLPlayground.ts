@@ -24,15 +24,21 @@ export function useSQLPlayground() {
   const [selectedDataset, setSelectedDataset] = useState('employees')
   const [queryHistory, setQueryHistory] = useState<QueryHistoryItem[]>([])
   const [dbReady, setDbReady] = useState(false)
+  const [initError, setInitError] = useState<string | null>(null)
 
   // DB 초기화
   useEffect(() => {
     const init = async () => {
-      const dataset = datasets[selectedDataset]
-      if (dataset) {
-        await initSQLService(dataset.initSQL)
-        setSql(dataset.sampleQuery)
-        setDbReady(true)
+      try {
+        const dataset = datasets[selectedDataset]
+        if (dataset) {
+          await initSQLService(dataset.initSQL)
+          setSql(dataset.sampleQuery)
+          setDbReady(true)
+        }
+      } catch (err) {
+        console.error('DB 초기화 실패:', err)
+        setInitError(err instanceof Error ? err.message : 'DB 초기화에 실패했습니다.')
       }
     }
     init()
@@ -111,6 +117,7 @@ export function useSQLPlayground() {
     selectedDataset,
     queryHistory,
     dbReady,
+    initError,
     executeQuery,
     handleSelectDataset,
     handleClear,

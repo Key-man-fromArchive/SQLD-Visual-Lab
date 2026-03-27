@@ -12,7 +12,26 @@ const nextConfig: NextConfig = {
       path: false,
       crypto: false,
     }
+    // WASM 파일 처리
+    config.experiments = {
+      ...config.experiments,
+      asyncWebAssembly: true,
+    }
     return config
+  },
+  // 정적 파일 헤더 설정 (WASM MIME type)
+  async headers() {
+    return [
+      {
+        source: '/:path*.wasm',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/wasm',
+          },
+        ],
+      },
+    ]
   },
 }
 
