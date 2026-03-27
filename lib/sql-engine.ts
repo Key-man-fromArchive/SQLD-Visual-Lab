@@ -71,8 +71,9 @@ export async function initDatabase(initSQL?: string): Promise<void> {
       locateFile = (file: string) =>
         path.join(__dirname, '..', 'node_modules', 'sql.js', 'dist', file)
     } else {
-      // 브라우저 환경
-      locateFile = (file: string) => `/${file}`
+      // 브라우저 환경: CDN에서 WASM 로드 (Vercel 호환)
+      locateFile = () =>
+        'https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/sql-wasm.wasm'
     }
 
     const SQL = await initSqlJs({ locateFile })
