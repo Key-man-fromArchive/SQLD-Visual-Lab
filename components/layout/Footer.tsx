@@ -6,6 +6,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
         <p>© 2026 SQLD Visual Lab</p>
         <p className="mt-1">Made with ❤️ for SQLD students</p>
+        <p className="mt-2 text-gray-400 text-xs">Built by 안국현, 박기범 & Claude Code</p>
       </div>
     </footer>
   )
