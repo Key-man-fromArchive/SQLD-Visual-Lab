@@ -21,21 +21,18 @@ export function useSQLPlayground() {
   const [sql, setSql] = useState('')
   const [results, setResults] = useState<SQLResult | null>(null)
   const [loading, setLoading] = useState(false)
-  const [selectedDataset, setSelectedDataset] = useState('employees')
+  const [selectedDataset, setSelectedDataset] = useState('custom')
   const [queryHistory, setQueryHistory] = useState<QueryHistoryItem[]>([])
   const [dbReady, setDbReady] = useState(false)
   const [initError, setInitError] = useState<string | null>(null)
 
-  // DB 초기화
+  // DB 초기화 — 빈 DB로 시작 (사용자가 데이터셋을 선택하면 로드)
   useEffect(() => {
     const init = async () => {
       try {
-        const dataset = datasets[selectedDataset]
-        if (dataset) {
-          await initSQLService(dataset.initSQL)
-          setSql(dataset.sampleQuery)
-          setDbReady(true)
-        }
+        await initSQLService()
+        setSql('-- SQLD Visual Lab에 오신 것을 환영합니다!\n-- 아래에서 데이터셋을 선택하거나, 직접 테이블을 만들어보세요.\n\n-- 예시: 테이블 만들기\n-- CREATE TABLE students (id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\n-- INSERT INTO students VALUES (1, \'홍길동\', 85);\n-- SELECT * FROM students;\n')
+        setDbReady(true)
       } catch (err) {
         console.error('DB 초기화 실패:', err)
         setInitError(err instanceof Error ? err.message : 'DB 초기화에 실패했습니다.')

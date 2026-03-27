@@ -38,19 +38,21 @@ export default function SampleDataSelector({
         "
         aria-label="샘플 데이터셋 선택"
       >
-        {datasetList.map((dataset) => (
-          <option key={dataset.id} value={dataset.id}>
-            {dataset.name}
-          </option>
-        ))}
-        <option value="custom">직접 입력 (빈 DB)</option>
+        <option value="custom">빈 DB (직접 만들기)</option>
+        <optgroup label="샘플 데이터셋">
+          {datasetList.map((dataset) => (
+            <option key={dataset.id} value={dataset.id}>
+              {dataset.name}
+            </option>
+          ))}
+        </optgroup>
       </select>
 
-      {selectedDataset !== 'custom' && (
-        <p className="text-xs text-gray-500 hidden sm:block">
-          {datasetList.find((d) => d.id === selectedDataset)?.description}
-        </p>
-      )}
+      <p className="text-xs text-gray-500 hidden sm:block">
+        {selectedDataset === 'custom'
+          ? 'CREATE TABLE로 직접 테이블을 만들어보세요!'
+          : datasetList.find((d) => d.id === selectedDataset)?.description}
+      </p>
     </div>
   )
 }
